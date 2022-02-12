@@ -1,26 +1,24 @@
+;([1, 2, 3, 4]).forEach(id => {
+    document.getElementById('btn' + id).onclick = function () {
+        client.send(
+            '/app/play',
+            {},
+            JSON.stringify({instrument : 'aud' + id})
+        )
+    }
+})
 
-let btn1 = document.getElementById('btn1')
-let btn2 = document.getElementById('btn2')
-let btn3 = document.getElementById('btn3')
-let btn4 = document.getElementById('btn4')
+let sock;
+let client;
 
-let aud1 = () => document.getElementById('aud1')
-let aud2 = () => document.getElementById('aud2')
-let aud3 = () => document.getElementById('aud3')
-let aud4 = () => document.getElementById('aud4')
+window.onload = function () {
+    sock = new SockJS('/music-mania')
+    client = Stomp.over(sock)
 
-btn1.onclick = function (){
-    aud1().play()
-}
-
-btn2.onclick = function (){
-    aud2().play()
-}
-
-btn3.onclick = function (){
-    aud3().play()
-}
-
-btn4.onclick = function (){
-    aud4().play()
+    client.connect({}, function () {
+        client.subscribe('/instruments/play', function (data) {
+            let body = JSON.parse(data.body)
+            document.getElementById(body.instrument).play()
+        })
+    })
 }
